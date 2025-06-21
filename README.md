@@ -38,7 +38,7 @@ Once a transaction is committed, its data is persisted—even after a crash or p
 
 - Often seen in master-slave (leader-follower) setups.
 - Writes go to the master; updates are pushed asynchronously to slaves.
-- Reads from slaves may not reflect the latest data immediately.
+- Reads from slaves might be slightly outdated. If you always want the latest data, make sure to read from the master.
 
 ---
 
@@ -74,14 +74,14 @@ Random distribution leads to poor B+Tree performance and high write overhead due
 
 - Created on non-clustered (non-ordered) columns.
 - Even though the column isn’t ordered in the table, the index itself is ordered (B+Tree).
-- Comes with overhead on writes (due to tree maintenance).
+- Comes with overhead on writes (due to B+Tree rebalancing).
 
 ---
 
 ## 📁 Database Partitioning
 
 **What is Partitioning?**  
-Splitting a large table into smaller chunks (partitions) based on a column value (e.g., date range).
+Splitting a large table horizontally into smaller chunks (partitions) based on a column value (e.g., date range).
 
 **Benefits:**
 - Queries can target specific partitions → improves performance.
@@ -101,7 +101,7 @@ Splitting a large table into smaller chunks (partitions) based on a column value
 Dividing one large database into multiple smaller databases (shards), each with a portion of the data.
 
 **Sharding Key:**  
-Used to determine which shard holds the data (via consistent hashing or range logic).
+Used to determine which shard holds the data (via consistent hashing).
 
 **Partitioning vs Sharding:**
 - **Partitioning:** Splits one table across multiple internal partitions in the same DB.
@@ -127,13 +127,13 @@ Used to determine which shard holds the data (via consistent hashing or range lo
 - **Shared Lock:** Others can read but not write.
 
 ### 🔁 Double Booking Problem (e.g., seat booking system)
-- Use **two-phase locking** and `SELECT ... FOR UPDATE` to prevent race conditions.
+- Use `SELECT ... FOR UPDATE` to avoid race conditions and make sure the first transaction that locks the ticket gets it.
 
 ---
 
 ## 📄 Pagination
 
-- **Offset-based pagination is slow** for large datasets because DB must scan and discard `OFFSET` rows before returning the `LIMIT` results.
+- **Offset-based pagination is slow** for large datasets because DB must scan the (`OFFSET` + `LIMIT`) number of rows and then discard `OFFSET` rows before returning the `LIMIT` results.
 - Consider **keyset pagination** (using a `WHERE id > last_seen_id`) for better performance.
 
 ---
