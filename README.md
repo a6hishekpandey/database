@@ -29,6 +29,8 @@ Prevents concurrent transactions from interfering with each other.
 - **Snapshot (MVCC):** Transaction sees a snapshot of the DB as it was at the start.
 - **Serializable:** Strictest isolation → no concurrent transactions; behaves like transactions are run one after the other.
 
+![20250418_134037](https://github.com/user-attachments/assets/31f74e7a-07d5-47f6-a17f-934e069509a3)
+
 **Durability:**  
 Once a transaction is committed, its data is persisted—even after a crash or power failure.
 
