@@ -179,3 +179,49 @@ Used to determine which shard holds the data (via consistent hashing).
 
 - **Optimistic Locking:** No locks; uses a version column to detect conflicts.
 - **Pessimistic Locking:** Locks the row to prevent conflicts (`FOR UPDATE`).
+
+## ✅ How Optimistic Locking Works:
+
+**Read:**  
+   - Fetch a record with a version number.
+   - e.g., `version = 4`.
+
+**Edit:**  
+   - User modifies the data.
+
+**Write:**  
+   - When saving, issue an `UPDATE` with a condition on the version:
+     ```sql
+     UPDATE posts
+     SET title = 'New Title', version = 5
+     WHERE id = 123 AND version = 4;
+     ```
+   - DB updates only if the version hasn’t changed.
+
+**Conflict:**  
+   - If version doesn't match (record has changed), the update **fails**.
+   - The application handles the failure (e.g., prompt user to reload).
+
+### 💡 Ideal For:
+
+- High-concurrency systems
+- Stateless apps (e.g., web apps)
+- Systems using connection pools
+- 3-tier architectures (app → API → DB)
+
+### ⚠️ When It Fails:
+
+- Multiple users read same version
+- One updates → succeeds
+- Others → fail with version mismatch
+
+## 🔒 Optimistic vs Pessimistic Locking
+
+| Feature | **Optimistic** | **Pessimistic** |
+|--------|----------------|-----------------|
+| Locks | No locks | Uses row/table locks |
+| Conflicts | Detected at write time | Prevented at read time |
+| Performance | Better for reads | Safer for critical writes |
+| Use Case | Web apps, APIs | Banking, critical systems |
+
+---
