@@ -161,6 +161,20 @@ Used to determine which shard holds the data (via consistent hashing).
 
 ---
 
+## 🆚 SQL vs NoSQL
+
+| Feature | **SQL (Relational DB)** | **NoSQL (Non-relational DB)** |
+|--------|--------------------------|-------------------------------|
+| **Data Model** | Structured (tables, rows, columns) | Flexible (documents, key-value, graph, etc.) |
+| **Schema** | Fixed schema (predefined structure) | Dynamic schema (schema-less) |
+| **Query Language** | SQL (Structured Query Language) | Varies by DB (e.g., MongoDB uses JSON-like queries) |
+| **ACID Compliance** | Strong | Often relaxed; prefers eventual consistency |
+| **Scalability** | Vertical (scale up: stronger server) | Horizontal (scale out: more servers) |
+| **Joins** | Powerful support for joins | Limited or no joins (denormalization is preferred) |
+| **Use Case** | Complex queries, transactional systems (e.g., banking) | High scalability, fast reads/writes, flexible data (e.g., social media) |
+
+---
+
 ## 🧠 Concurrency Control
 
 - **Optimistic Locking:** No locks; uses a version column to detect conflicts.
