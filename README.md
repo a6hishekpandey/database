@@ -151,6 +151,14 @@ Used to determine which shard holds the data (via consistent hashing).
 - **Semi-Async:** Master waits for at least one slave to confirm.
 - **Synchronous:** Master waits for all slaves (rare, slow).
 
+**Pros:**
+1. Horizontal scaling
+2. Region based queries - DB per region
+
+**Cons:**
+1. Eventual consistency
+2. Slow synchronous writes
+
 ---
 
 ## 🧠 Concurrency Control
