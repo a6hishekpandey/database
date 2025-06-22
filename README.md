@@ -180,7 +180,7 @@ Used to determine which shard holds the data (via consistent hashing).
 - **Optimistic Locking:** No locks; uses a version column to detect conflicts.
 - **Pessimistic Locking:** Locks the row to prevent conflicts (`FOR UPDATE`).
 
-## ✅ How Optimistic Locking Works:
+### ✅ How Optimistic Locking Works:
 
 **Read:**  
    - Fetch a record with a version number.
