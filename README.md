@@ -68,15 +68,100 @@ A data structure that improves read performance by allowing faster lookups.
 > Use composite index when filtering/sorting with multiple columns.
 
 ⚠️ **Avoid UUID (v4) as Index:**  
-Random distribution leads to poor B+Tree performance and high write overhead due to frequent rebalancing.
-
----
+- Random distribution leads to poor B+Tree performance and high write overhead due to frequent rebalancing.
 
 ## 📂 Secondary Index
 
 - Created on non-clustered (non-ordered) columns.
 - Even though the column isn’t ordered in the table, the index itself is ordered (B+Tree).
 - Comes with overhead on writes (due to B+Tree rebalancing).
+
+## 🧠 What is a Bitmap Index?
+A **bitmap index** uses bitmaps (bit arrays) to represent the presence or absence of a value in a column.
+
+- Each distinct value gets a **bitmap vector**.
+- Each bit represents a row:
+  - `1` = row has the value
+  - `0` = row doesn't
+
+### Example:
+Column: `status` with values `"active"` and `"inactive"`
+
+- `active`  → `[1, 0, 1, 0, 0, 1]`
+- `inactive` → `[0, 1, 0, 1, 1, 0]`
+
+---
+
+## 🔍 What is a Bitmap Index Scan?
+
+A **Bitmap Index Scan** is an index scan strategy that:
+
+- Scans indexes to **generate bitmaps** of matching rows.
+- **Combines** bitmaps (e.g., with AND/OR).
+- **Converts** the final bitmap into a list of row IDs.
+- Performs a **Bitmap Heap Scan** to fetch actual rows.
+
+---
+
+## 📦 When Is It Used?
+
+- Multiple conditions on **different columns**.
+  - e.g., `WHERE gender = 'M' AND age = 25`
+- Queries on **low-cardinality (unique values) columns**.
+- **Large datasets** with filtering on indexed columns.
+
+---
+
+## 🛠️ How It Works – Step by Step
+
+Given:
+```sql
+SELECT * FROM users WHERE gender = 'M' AND age = 30;
+```
+
+Assume bitmap indexes exist on `gender` and `age`.
+- Bitmap Index Scan on `gender = 'M'`
+    - Bitmap: `[1, 0, 1, 0, 1, 0]`
+- Bitmap Index Scan on `age = 30`
+    - Bitmap: `[0, 1, 1, 0, 1, 0]`
+- Bitmap AND
+    - Result: `[0, 0, 1, 0, 1, 0]`
+- Bitmap Heap Scan
+    - Fetch rows 3 and 5 from the table
+
+## 📌 PostgreSQL Example (EXPLAIN Output)
+
+Given:
+```sql
+EXPLAIN SELECT * FROM employees WHERE department_id = 2 AND status = 'active';
+```
+
+Output:
+```text
+Bitmap Heap Scan on employees
+  Recheck Cond: (department_id = 2 AND status = 'active')
+  -> BitmapAnd
+       -> Bitmap Index Scan on idx_department_id  (condition: department_id = 2)
+       -> Bitmap Index Scan on idx_status         (condition: status = 'active')
+```
+
+## 🧠 Quick Notes: 
+
+### 🎯 Why Bitmap Indexes Are Suitable Only for Low-Cardinality Columns?
+
+### 1. 📦 One Bitmap per Distinct Value
+- Bitmap index creates **one bitmap per unique value** in a column.
+- More unique values = more bitmaps = more memory consumption.
+
+### 2. 💾 Memory Usage Grows Fast
+- Each bitmap has 1 bit per row.
+- For high-cardinality columns (e.g. `email`, `user_id`), bitmap index size becomes huge.
+- Example:
+  - 1 million rows * 3 unique values → ~375 KB
+  - 1 million rows * 100,000 unique values → ~12.5 GB ❗
+  
+### 🎯 Why Recheck Condition Is Required After BitmapAnd in PostgreSQL?
+- Recheck Condition is needed because bitmaps operate at the page level, not always the row level.
 
 ---
 
