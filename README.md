@@ -64,7 +64,7 @@ A data structure that improves read performance by allowing faster lookups.
 - One index on multiple columns.
 - Useful when filtering/sorting on multiple columns (especially with `AND` conditions).
 - **Column order matters**: Index is effective from left to right.
-- If you skip any column from the left of a composite index, Database engine cannot use the index for the columns to the right of the skipped one.
+- If you skip any column from the left of a composite index, DBMS can't use the index for the columns to the right of the skipped one.
 
 > Use composite index when filtering/sorting with multiple columns.
 
